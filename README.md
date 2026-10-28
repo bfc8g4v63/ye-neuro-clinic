@@ -15,6 +15,7 @@
 - `AGENTS.md`：跨對話／跨開發者的決策摘要。
 - `docs/ROADMAP.md`：依驗收條件切分的交付路線圖。
 - `docs/ON_SITE_UAT.md`：30 號假資料演練與現場設備驗收 SOP。
+- `docs/SIMULATION_TEST_REPORT.md`：開發 NB 的模擬測試結果與現場待驗證項目。
 - `output/pdf/`：正式規劃書與附件。
 - `create_queue_system_pdf.py`：規劃書產生來源。
 
