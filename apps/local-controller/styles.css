@@ -36,7 +36,7 @@ h2 { margin-bottom: 0; font-size: 1.25rem; }
 .shortcut-note { display: grid; gap: 7px; border-left: 1px solid rgba(255,255,255,.35); padding-left: 24px; color: #daf2ef; }
 
 .control-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0; }
-.action, .secondary, .text-button {
+.action, .secondary, .text-button, .display-button {
   border-radius: 12px;
   min-height: 58px;
   font-weight: 800;
@@ -59,6 +59,7 @@ h2 { margin-bottom: 0; font-size: 1.25rem; }
 .checkin-form input { width: 118px; min-height: 48px; border: 1px solid #9db8ba; border-radius: 10px; padding: 8px 12px; }
 .secondary { border: 0; padding: 0 18px; background: #174b61; color: #fff; }
 .text-button { border: 0; padding: 0 10px; background: transparent; color: #176e71; text-decoration: underline; }
+.display-button { min-height: 40px; border: 1px solid #84aaa9; border-radius: 9px; padding: 0 12px; background: #fff; color: #176462; font-size: .88rem; font-weight: 800; }
 .form-message { grid-column: 1 / -1; margin: 0; min-height: 1.3em; color: #176e71; font-weight: 700; }
 
 .queues { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }

@@ -9,7 +9,7 @@ function rule(selector) {
   return match[1];
 }
 
-const actions = rule(".action, .secondary, .text-button");
+const actions = rule(".action, .secondary, .text-button, .display-button");
 assert.match(actions, /display:\s*inline-flex/);
 assert.match(actions, /align-items:\s*center/);
 assert.match(actions, /justify-content:\s*center/);

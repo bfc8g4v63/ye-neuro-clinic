@@ -1,0 +1,36 @@
+{
+  "name": "ye-neuro-queue-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "葉神經科本機候診叫號系統",
+  "main": "apps/desktop-app/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "test": "node --check apps/desktop-app/main.cjs && node --check apps/desktop-app/preload.cjs && node --check apps/local-controller/queue-controller.js && node --check apps/local-controller/waiting-display.js && node tests/local-controller-layout.test.mjs && node tests/waiting-display.test.mjs"
+  },
+  "build": {
+    "appId": "tw.ye-neuro.queue",
+    "productName": "Ye Neuro Queue",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "apps/desktop-app/**/*",
+      "apps/local-controller/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0"
+  }
+}

@@ -1,6 +1,7 @@
 const storageKey = "ye-neuro-queue-controller-v1";
-const state = JSON.parse(localStorage.getItem(storageKey) || '{"items":[],"current":null}');
-const queueChannel = new BroadcastChannel("ye-neuro-queue");
+let state = JSON.parse(localStorage.getItem(storageKey) || '{"items":[],"current":null}');
+const queueChannel = typeof BroadcastChannel === "undefined" ? null : new BroadcastChannel("ye-neuro-queue");
+const desktop = window.queueDesktop;
 
 const elements = {
   currentNumber: document.querySelector("#currentNumber"),
@@ -8,6 +9,7 @@ const elements = {
   checkinForm: document.querySelector("#checkinForm"),
   queueNumber: document.querySelector("#queueNumber"),
   returnReadyButton: document.querySelector("#returnReadyButton"),
+  openDisplayButton: document.querySelector("#openDisplayButton"),
   formMessage: document.querySelector("#formMessage"),
   todayLabel: document.querySelector("#todayLabel"),
   lists: {
@@ -26,7 +28,8 @@ const statusLabel = { waiting: "等待中", called: "叫號中", noShow: "過號
 
 function save() {
   localStorage.setItem(storageKey, JSON.stringify(state));
-  queueChannel.postMessage({ type: "queue:update" });
+  queueChannel?.postMessage({ type: "queue:update" });
+  if (desktop) void desktop.saveState(state);
 }
 function nowLabel() { return new Intl.DateTimeFormat("zh-TW", { dateStyle: "long" }).format(new Date()); }
 function setMessage(message) { elements.formMessage.textContent = message; }
@@ -130,8 +133,18 @@ document.querySelectorAll("[data-action]").forEach((button) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  const handlers = { F8: callNext, F9: callReturn, F10: recall, F11: noShow };
+  const handlers = { F6: () => desktop?.openWaitingDisplay(), F8: callNext, F9: callReturn, F10: recall, F11: noShow };
   if (handlers[event.key]) { event.preventDefault(); handlers[event.key](); }
 });
+
+elements.openDisplayButton.addEventListener("click", () => {
+  if (!desktop) return setMessage("候診大螢幕僅能從 Windows 桌面程式開啟。");
+  void desktop.openWaitingDisplay();
+});
+
+if (desktop) {
+  desktop.loadState().then((savedState) => { state = savedState; render(); });
+  desktop.onStateUpdate((savedState) => { state = savedState; render(); });
+}
 
 render();

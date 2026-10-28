@@ -8,6 +8,7 @@ __pycache__/
 
 # Future application dependencies and secrets
 node_modules/
+release/
 .wrangler/
 .dev.vars
 .env
