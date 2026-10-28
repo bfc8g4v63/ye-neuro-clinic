@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="葉神經科候診進度查詢" />
+    <title>葉神經科｜候診進度</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="queue-page">
+      <header class="brand">葉神經科</header>
+      <section class="queue-card" aria-labelledby="queue-title">
+        <p class="eyebrow">候診進度查詢</p>
+        <h1 id="queue-title">今日候診進度</h1>
+        <div class="status-chip">系統建置中</div>
+        <div class="number-panel" aria-live="polite">
+          <span class="number-label">目前叫號</span>
+          <strong class="queue-number">—</strong>
+          <span class="number-suffix">號</span>
+        </div>
+        <dl class="details">
+          <div><dt>門診狀態</dt><dd>尚未接入現場資料</dd></div>
+          <div><dt>最後更新</dt><dd>—</dd></div>
+        </dl>
+      </section>
+      <section class="notice" aria-label="候診提醒">
+        <h2>候診提醒</h2>
+        <p>本頁上線後將顯示即時候診進度。實際叫號以診所現場螢幕與語音為準。</p>
+      </section>
+      <footer>葉神經科候診服務</footer>
+    </main>
+  </body>
+</html>
