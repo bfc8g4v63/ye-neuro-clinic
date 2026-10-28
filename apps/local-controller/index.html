@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="葉神經科現場候診控制器原型" />
+    <title>葉神經科｜現場候診控制器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">葉神經科｜診所內部使用</p>
+          <h1>現場候診控制器</h1>
+          <p class="subtle">僅記錄當日號碼與候診狀態；不輸入姓名、健保卡號或病歷內容。</p>
+        </div>
+        <div class="day-status" aria-live="polite">
+          <span id="todayLabel">—</span>
+          <span class="local-badge">本機模式</span>
+        </div>
+      </header>
+
+      <section class="current-card" aria-labelledby="current-heading">
+        <div>
+          <p class="eyebrow">目前叫號</p>
+          <h2 id="current-heading"><span id="currentNumber">尚未叫號</span></h2>
+          <p id="currentMeta" class="subtle">先由櫃台新增當日候診號碼。</p>
+        </div>
+        <div class="shortcut-note">
+          <span>快捷鍵</span>
+          <strong>F8 一般　F9 回號　F10 重叫　F11 過號</strong>
+        </div>
+      </section>
+
+      <section class="control-grid" aria-label="叫號操作">
+        <button class="action primary" type="button" data-action="call-next">
+          <span>F8</span> 一般叫號
+        </button>
+        <button class="action" type="button" data-action="call-return">
+          <span>F9</span> 回號叫號
+        </button>
+        <button class="action" type="button" data-action="recall">
+          <span>F10</span> 重叫目前號碼
+        </button>
+        <button class="action warning" type="button" data-action="no-show">
+          <span>F11</span> 目前號碼過號
+        </button>
+      </section>
+
+      <section class="panel checkin-panel" aria-labelledby="checkin-heading">
+        <div>
+          <p class="eyebrow">櫃台報到</p>
+          <h2 id="checkin-heading">新增或找回原號</h2>
+        </div>
+        <form id="checkinForm" class="checkin-form">
+          <label for="queueNumber">當日候診號碼</label>
+          <input id="queueNumber" name="queueNumber" inputmode="numeric" min="1" max="999" type="number" required />
+          <button class="secondary" type="submit">新增等待</button>
+          <button class="text-button" id="returnReadyButton" type="button">過號病人回來（保留原號）</button>
+        </form>
+        <p id="formMessage" class="form-message" aria-live="polite"></p>
+      </section>
+
+      <section class="queues" aria-label="候診清單">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">一般候診</p>
+              <h2>等待中</h2>
+            </div>
+            <span id="waitingCount" class="count">0</span>
+          </div>
+          <ol id="waitingList" class="queue-list" aria-live="polite"></ol>
+        </article>
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">例外處理</p>
+              <h2>回號待叫</h2>
+            </div>
+            <span id="returnCount" class="count">0</span>
+          </div>
+          <ol id="returnList" class="queue-list" aria-live="polite"></ol>
+        </article>
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">尚未完成</p>
+              <h2>過號</h2>
+            </div>
+            <span id="noShowCount" class="count">0</span>
+          </div>
+          <ol id="noShowList" class="queue-list" aria-live="polite"></ol>
+        </article>
+      </section>
+
+      <p class="footnote">此原型的資料只留在目前瀏覽器。正式上線前，需改由診所主機保存並同步匿名的公開叫號資訊。</p>
+    </main>
+    <script src="queue-controller.js"></script>
+  </body>
+</html>

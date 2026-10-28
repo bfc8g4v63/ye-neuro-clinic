@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color: #142f3e;
+  background: #eef6f6;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; min-width: 320px; }
+
+button, input { font: inherit; }
+
+button { cursor: pointer; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding: 40px 24px 56px; }
+
+.topbar, .current-card, .panel-heading, .checkin-form, .day-status { display: flex; align-items: center; }
+
+.topbar { justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 8px; font-size: clamp(1.7rem, 4vw, 2.4rem); }
+h2 { margin-bottom: 0; font-size: 1.25rem; }
+.eyebrow { margin-bottom: 7px; color: #227a78; font-weight: 800; font-size: .84rem; letter-spacing: .04em; }
+.subtle, .footnote { color: #597079; line-height: 1.65; }
+.subtle { margin-bottom: 0; }
+
+.day-status { flex-direction: column; align-items: flex-end; gap: 8px; font-weight: 700; }
+.local-badge { border-radius: 999px; padding: 6px 11px; background: #d9eeee; color: #176462; font-size: .84rem; }
+
+.current-card, .panel { border: 1px solid #d5e5e4; border-radius: 18px; background: #fff; box-shadow: 0 8px 28px rgba(35, 89, 93, .08); }
+.current-card { justify-content: space-between; gap: 24px; padding: 30px 34px; background: linear-gradient(135deg, #174b61, #0c6870); color: #fff; }
+.current-card .eyebrow, .current-card .subtle { color: #d4eeee; }
+#currentNumber { display: block; margin-top: 6px; font-size: clamp(2.5rem, 8vw, 5rem); line-height: 1; }
+.shortcut-note { display: grid; gap: 7px; border-left: 1px solid rgba(255,255,255,.35); padding-left: 24px; color: #daf2ef; }
+
+.control-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0; }
+.action, .secondary, .text-button {
+  border-radius: 12px;
+  min-height: 58px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.action { border: 1px solid #bfd5d8; background: #fff; color: #174b61; }
+.action:hover, .action:focus-visible { border-color: #127a7d; background: #f2fbfa; }
+.action span { margin-right: 6px; color: #267b76; font-size: .82rem; }
+.action.primary { border-color: #0b7575; background: #0b7575; color: #fff; }
+.action.primary span { color: #d4f4ef; }
+.action.warning { color: #9a4715; }
+
+.panel { padding: 22px; }
+.checkin-panel { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 22px; }
+.checkin-form { flex-wrap: wrap; gap: 10px; align-content: center; }
+.checkin-form label { width: 100%; font-weight: 700; }
+.checkin-form input { width: 118px; min-height: 48px; border: 1px solid #9db8ba; border-radius: 10px; padding: 8px 12px; }
+.secondary { border: 0; padding: 0 18px; background: #174b61; color: #fff; }
+.text-button { border: 0; padding: 0 10px; background: transparent; color: #176e71; text-decoration: underline; }
+.form-message { grid-column: 1 / -1; margin: 0; min-height: 1.3em; color: #176e71; font-weight: 700; }
+
+.queues { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.panel-heading { justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.count { display: grid; place-items: center; min-width: 36px; height: 36px; border-radius: 50%; background: #e2f0ef; color: #176462; font-weight: 800; }
+.queue-list { display: grid; gap: 8px; min-height: 52px; margin: 0; padding-left: 0; list-style: none; }
+.queue-list li { display: flex; align-items: center; justify-content: space-between; border-radius: 9px; padding: 11px 12px; background: #f3f8f8; font-weight: 800; }
+.queue-list small { color: #60797f; font-weight: 600; }
+.empty { display: grid !important; place-items: center; color: #6e878e; font-weight: 600 !important; }
+.footnote { margin: 24px 0 0; font-size: .9rem; }
+
+@media (max-width: 800px) {
+  .shell { padding: 24px 16px 40px; }
+  .topbar, .current-card { align-items: flex-start; flex-direction: column; }
+  .day-status { align-items: flex-start; }
+  .shortcut-note { border-top: 1px solid rgba(255,255,255,.35); border-left: 0; padding-top: 16px; padding-left: 0; }
+  .control-grid, .queues { grid-template-columns: 1fr 1fr; }
+  .checkin-panel { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .control-grid, .queues { grid-template-columns: 1fr; }
+  .action { min-height: 54px; }
+}
