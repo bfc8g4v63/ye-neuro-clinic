@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="葉神經科現場候診顯示畫面" />
+    <title>葉神經科｜候診顯示</title>
+    <link rel="stylesheet" href="waiting-display.css" />
+  </head>
+  <body>
+    <main class="display-shell">
+      <header>
+        <p class="clinic-name">葉神經科</p>
+        <p class="status"><span class="status-dot"></span>現場候診進行中</p>
+      </header>
+      <section class="number-card" aria-live="polite" aria-atomic="true">
+        <p>目前請</p>
+        <h1 id="currentNumber">—</h1>
+        <p class="number-suffix">號進入診間</p>
+      </section>
+      <footer>
+        <p id="updatedAt">尚未接收到現場叫號資料</p>
+        <p>實際叫號以本螢幕與現場語音為準</p>
+      </footer>
+    </main>
+    <script src="waiting-display.js"></script>
+  </body>
+</html>

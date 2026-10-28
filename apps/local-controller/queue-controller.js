@@ -1,5 +1,6 @@
 const storageKey = "ye-neuro-queue-controller-v1";
 const state = JSON.parse(localStorage.getItem(storageKey) || '{"items":[],"current":null}');
+const queueChannel = new BroadcastChannel("ye-neuro-queue");
 
 const elements = {
   currentNumber: document.querySelector("#currentNumber"),
@@ -23,7 +24,10 @@ const elements = {
 
 const statusLabel = { waiting: "等待中", called: "叫號中", noShow: "過號", returnReady: "回號待叫", done: "已完成" };
 
-function save() { localStorage.setItem(storageKey, JSON.stringify(state)); }
+function save() {
+  localStorage.setItem(storageKey, JSON.stringify(state));
+  queueChannel.postMessage({ type: "queue:update" });
+}
 function nowLabel() { return new Intl.DateTimeFormat("zh-TW", { dateStyle: "long" }).format(new Date()); }
 function setMessage(message) { elements.formMessage.textContent = message; }
 function getNumber() { return Number(elements.queueNumber.value); }
@@ -63,6 +67,8 @@ function callItem(item, message) {
   if (previous && previous.number !== item.number) previous.status = "done";
   item.status = "called";
   state.current = item.number;
+  state.lastCalledAt = new Date().toISOString();
+  state.lastEvent = "call";
   setMessage(message);
   render();
 }
@@ -81,6 +87,11 @@ function callReturn() {
 
 function recall() {
   const current = state.items.find((item) => item.number === state.current && item.status === "called");
+  if (current) {
+    state.lastCalledAt = new Date().toISOString();
+    state.lastEvent = "recall";
+    save();
+  }
   setMessage(current ? `請再次播報 ${current.number} 號。` : "目前沒有可重叫的號碼。");
 }
 

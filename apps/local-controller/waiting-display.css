@@ -1,0 +1,25 @@
+:root {
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color: #fff;
+  background: #0d4054;
+}
+
+* { box-sizing: border-box; }
+body { min-width: 320px; min-height: 100vh; margin: 0; }
+.display-shell { display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; padding: clamp(28px, 5vw, 80px); background: radial-gradient(circle at 78% 12%, #1d8b89, transparent 38%), #0d4054; }
+header, footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.clinic-name { margin: 0; font-size: clamp(1.4rem, 3vw, 2.4rem); font-weight: 800; }
+.status { display: inline-flex; align-items: center; gap: 10px; margin: 0; color: #d9f5f1; font-size: clamp(1rem, 2vw, 1.45rem); }
+.status-dot { width: .72em; height: .72em; border-radius: 50%; background: #74e1bd; box-shadow: 0 0 0 6px rgba(116, 225, 189, .13); }
+.number-card { display: grid; place-items: center; align-content: center; min-height: 55vh; text-align: center; }
+.number-card p { margin: 0; color: #d7f2ef; font-size: clamp(1.5rem, 3.5vw, 3.2rem); font-weight: 700; }
+.number-card h1 { margin: .15em 0; color: #fff; font-size: clamp(9rem, 31vw, 26rem); line-height: .8; letter-spacing: -.07em; text-shadow: 0 8px 30px rgba(0,0,0,.2); }
+.number-suffix { margin-left: .9em !important; }
+footer { border-top: 1px solid rgba(255,255,255,.28); padding-top: 20px; color: #d0e7e6; font-size: clamp(.9rem, 1.8vw, 1.35rem); }
+footer p { margin: 0; }
+
+@media (max-width: 640px) {
+  .display-shell { padding: 26px 20px; }
+  header, footer { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .number-card { min-height: 58vh; }
+}
