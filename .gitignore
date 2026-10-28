@@ -1,0 +1,21 @@
+# Local and generated QA files
+tmp/
+qa_render/
+qa_render_v2/
+qa_render_v3/
+__pycache__/
+*.pyc
+
+# Future application dependencies and secrets
+node_modules/
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
