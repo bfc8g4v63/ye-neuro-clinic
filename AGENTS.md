@@ -37,3 +37,10 @@
 
 - 規劃 PDF：`output/pdf/葉神經科候診叫號系統第一階段導入規劃.pdf`
 - PDF 產生程式：`create_queue_system_pdf.py`
+- 分階段路線圖：`docs/ROADMAP.md`
+
+## 交付順序
+
+- 實作依 `docs/ROADMAP.md` 的切片與驗收條件推進，避免既有診所系統或雲端串接阻塞本機功能。
+- 目前進入切片 1：每日診次、匿名備份、操作稽核、例外復原與設備自測。
+- Cloudflare QR 公開頁屬切片 4，只能讀取匿名快照；現場系統是主系統。
