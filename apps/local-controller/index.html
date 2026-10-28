@@ -65,6 +65,29 @@
         </div>
       </section>
 
+      <section class="panel settings-panel" aria-labelledby="settings-heading">
+        <div>
+          <p class="eyebrow">試營運設定</p>
+          <h2 id="settings-heading">USB 小鍵盤與設備確認</h2>
+          <p class="subtle">先在診所系統測試無衝突，再將小鍵盤按鍵設為下列功能。</p>
+        </div>
+        <form id="settingsForm" class="settings-form">
+          <label>一般叫號 <select id="callNextKey" name="callNextKey"></select></label>
+          <label>回號叫號 <select id="callReturnKey" name="callReturnKey"></select></label>
+          <label>重叫目前號碼 <select id="recallKey" name="recallKey"></select></label>
+          <label>目前號碼過號 <select id="noShowKey" name="noShowKey"></select></label>
+          <button class="secondary" type="submit">儲存快捷鍵設定</button>
+          <button id="exportAuditButton" class="display-button" type="button">匯出匿名操作紀錄</button>
+          <p id="shortcutTest" class="form-message">按任一功能鍵可在此確認程式收到的按鍵。</p>
+          <fieldset class="device-checks">
+            <legend>設備已確認</legend>
+            <label><input id="displayCheck" type="checkbox" /> 候診大螢幕可清楚顯示</label>
+            <label><input id="voiceCheck" type="checkbox" /> 語音音量可在候診區聽見</label>
+            <label><input id="keypadCheck" type="checkbox" /> USB 小鍵盤與診所系統無衝突</label>
+          </fieldset>
+        </form>
+      </section>
+
       <section class="panel checkin-panel" aria-labelledby="checkin-heading">
         <div>
           <p class="eyebrow">櫃台報到</p>

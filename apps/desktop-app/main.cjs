@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, screen } = require("electron");
+const { app, BrowserWindow, Menu, ipcMain, screen, dialog } = require("electron");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
@@ -8,6 +8,7 @@ let displayWindow;
 const allowedStatuses = new Set(["waiting", "called", "noShow", "returnReady", "done"]);
 const allowedActions = new Set(["checkin", "call", "recall", "no_show", "return_ready", "undo", "session_started", "session_closed"]);
 const defaultState = { session: null, items: [], current: null, lastCalledAt: null, lastEvent: null, events: [] };
+const defaultSettings = { hotkeys: { callNext: "F8", callReturn: "F9", recall: "F10", noShow: "F11" }, deviceChecks: { display: false, voice: false, keypad: false } };
 
 function pagesPath() {
   return path.join(__dirname, "..", "local-controller");
@@ -25,6 +26,42 @@ function archivePath(session) {
   const date = session?.dateKey || new Date().toISOString().slice(0, 10);
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   return path.join(app.getPath("userData"), "archives", `queue-${date}-${stamp}.json`);
+}
+
+function settingsPath() {
+  return path.join(app.getPath("userData"), "queue-settings.json");
+}
+
+function sanitizeSettings(input) {
+  const supported = new Set(["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]);
+  const requested = input?.hotkeys || {};
+  const hotkeys = Object.fromEntries(Object.entries(defaultSettings.hotkeys).map(([name, fallback]) => [name, supported.has(requested[name]) ? requested[name] : fallback]));
+  return { hotkeys, deviceChecks: { display: Boolean(input?.deviceChecks?.display), voice: Boolean(input?.deviceChecks?.voice), keypad: Boolean(input?.deviceChecks?.keypad) } };
+}
+
+async function loadSettings() {
+  try { return sanitizeSettings(JSON.parse(await fs.readFile(settingsPath(), "utf8"))); } catch { return sanitizeSettings(defaultSettings); }
+}
+
+async function saveSettings(nextSettings) {
+  const settings = sanitizeSettings(nextSettings);
+  await fs.mkdir(path.dirname(settingsPath()), { recursive: true });
+  await fs.writeFile(settingsPath(), JSON.stringify(settings, null, 2), "utf8");
+  return settings;
+}
+
+function csvCell(value) {
+  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+}
+
+async function exportAudit(nextState) {
+  const state = sanitizeState(nextState);
+  const rows = [["時間", "角色", "動作", "候診號碼", "是否已復原"]];
+  state.events.forEach((event) => rows.push([event.at, event.actor === "reception" ? "櫃台" : "醫師", event.action, event.number ?? "", event.undone ? "是" : "否"]));
+  const { canceled, filePath } = await dialog.showSaveDialog(controllerWindow, { defaultPath: `葉神經科_候診操作紀錄_${new Date().toISOString().slice(0, 10)}.csv`, filters: [{ name: "CSV", extensions: ["csv"] }] });
+  if (canceled || !filePath) return null;
+  await fs.writeFile(filePath, `\uFEFF${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`, "utf8");
+  return filePath;
 }
 
 function sanitizeState(input) {
@@ -158,6 +195,9 @@ app.whenReady().then(() => {
   ipcMain.handle("queue:load-state", loadState);
   ipcMain.handle("queue:save-state", (_event, state) => saveState(state));
   ipcMain.handle("queue:archive-and-close", (_event, state) => archiveAndClose(state));
+  ipcMain.handle("queue:load-settings", loadSettings);
+  ipcMain.handle("queue:save-settings", (_event, settings) => saveSettings(settings));
+  ipcMain.handle("queue:export-audit", (_event, state) => exportAudit(state));
   ipcMain.handle("queue:open-display", () => openDisplay());
   ipcMain.handle("queue:test-voice", () => {
     if (displayWindow && !displayWindow.isDestroyed()) {

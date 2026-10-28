@@ -4,11 +4,14 @@ const desktop = window.queueDesktop;
 const queueChannel = typeof BroadcastChannel === "undefined" ? null : new BroadcastChannel("ye-neuro-queue");
 const defaultState = { session: null, items: [], current: null, lastCalledAt: null, lastEvent: null, events: [] };
 let state = normalize(JSON.parse(localStorage.getItem(storageKey) || "null"));
+let settings = { hotkeys: { callNext: "F8", callReturn: "F9", recall: "F10", noShow: "F11" }, deviceChecks: { display: false, voice: false, keypad: false } };
 
 const elements = {
   currentNumber: document.querySelector("#currentNumber"), currentMeta: document.querySelector("#currentMeta"), checkinForm: document.querySelector("#checkinForm"), queueNumber: document.querySelector("#queueNumber"),
   returnReadyButton: document.querySelector("#returnReadyButton"), openDisplayButton: document.querySelector("#openDisplayButton"), startSessionButton: document.querySelector("#startSessionButton"), endSessionButton: document.querySelector("#endSessionButton"),
   undoButton: document.querySelector("#undoButton"), testVoiceButton: document.querySelector("#testVoiceButton"), sessionBadge: document.querySelector("#sessionBadge"), lastAudit: document.querySelector("#lastAudit"),
+  settingsForm: document.querySelector("#settingsForm"), callNextKey: document.querySelector("#callNextKey"), callReturnKey: document.querySelector("#callReturnKey"), recallKey: document.querySelector("#recallKey"), noShowKey: document.querySelector("#noShowKey"),
+  exportAuditButton: document.querySelector("#exportAuditButton"), shortcutTest: document.querySelector("#shortcutTest"), displayCheck: document.querySelector("#displayCheck"), voiceCheck: document.querySelector("#voiceCheck"), keypadCheck: document.querySelector("#keypadCheck"),
   formMessage: document.querySelector("#formMessage"), todayLabel: document.querySelector("#todayLabel"),
   lists: { waiting: document.querySelector("#waitingList"), returnReady: document.querySelector("#returnList"), noShow: document.querySelector("#noShowList") },
   counts: { waiting: document.querySelector("#waitingCount"), returnReady: document.querySelector("#returnCount"), noShow: document.querySelector("#noShowCount") },
@@ -27,6 +30,13 @@ function activeItems(status) { return state.items.filter((item) => item.status =
 function snapshot() { return { items: state.items.map((item) => ({ ...item })), current: state.current, lastCalledAt: state.lastCalledAt, lastEvent: state.lastEvent }; }
 function save() { localStorage.setItem(storageKey, JSON.stringify(state)); queueChannel?.postMessage({ type: "queue:update" }); if (desktop) void desktop.saveState(state); }
 function record(action, actor, number, before) { const at = new Date().toISOString(); state.events.push({ id: `${at}-${action}`, at, action, actor, number: number ?? null, before, undone: false }); state.events = state.events.slice(-250); }
+function hotkeyOptions() { return ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]; }
+function renderSettings() {
+  const fields = { callNext: elements.callNextKey, callReturn: elements.callReturnKey, recall: elements.recallKey, noShow: elements.noShowKey };
+  Object.entries(fields).forEach(([name, field]) => { field.innerHTML = hotkeyOptions().map((key) => `<option value="${key}">${key}</option>`).join(""); field.value = settings.hotkeys[name]; });
+  elements.displayCheck.checked = settings.deviceChecks.display; elements.voiceCheck.checked = settings.deviceChecks.voice; elements.keypadCheck.checked = settings.deviceChecks.keypad;
+}
+function saveSettings() { if (desktop) void desktop.saveSettings(settings); else localStorage.setItem("ye-neuro-queue-settings", JSON.stringify(settings)); }
 
 function renderList(status, list, count) {
   const items = activeItems(status); count.textContent = items.length; list.innerHTML = "";
@@ -40,7 +50,7 @@ function render() {
   const current = state.items.find((item) => item.number === state.current && item.status === "called");
   elements.currentNumber.textContent = current ? `${current.number} 號` : active ? "尚未叫號" : "—";
   elements.currentMeta.textContent = current ? "完成看診後，先在既有系統送出病歷／處方，再按下一個快捷鍵。" : active ? "櫃台可新增候診號碼；醫師以快捷鍵叫號。" : "請先開始今日診次。";
-  [elements.checkinForm, ...document.querySelectorAll("[data-action]"), elements.returnReadyButton, elements.undoButton].forEach((control) => { control.disabled = !active; });
+  [...elements.checkinForm.querySelectorAll("input, button"), ...document.querySelectorAll("[data-action]"), elements.undoButton].forEach((control) => { control.disabled = !active; });
   elements.startSessionButton.disabled = active; elements.endSessionButton.disabled = !active;
   const last = state.events.at(-1);
   elements.lastAudit.textContent = last ? `最近紀錄：${new Intl.DateTimeFormat("zh-TW", { hour: "2-digit", minute: "2-digit" }).format(new Date(last.at))}｜${last.actor === "reception" ? "櫃台" : "醫師"}｜${last.action}` : "尚無操作紀錄";
@@ -76,9 +86,19 @@ elements.checkinForm.addEventListener("submit", (event) => {
 });
 elements.returnReadyButton.addEventListener("click", () => { if (!requireSession()) return; const number = getNumber(); const item = state.items.find((candidate) => candidate.number === number); if (!item || item.status !== "noShow") return setMessage("請輸入目前處於「過號」狀態的原號。"); const before = snapshot(); item.status = "returnReady"; record("return_ready", "reception", number, before); elements.queueNumber.value = ""; setMessage(`${number} 號已改為回號待叫，醫師可在適當時機叫回。`); save(); render(); });
 document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => ({ "call-next": callNext, "call-return": callReturn, recall, "no-show": noShow }[button.dataset.action])()));
-document.addEventListener("keydown", (event) => { const handlers = { F6: () => desktop?.openWaitingDisplay(), F8: callNext, F9: callReturn, F10: recall, F11: noShow }; if (handlers[event.key]) { event.preventDefault(); handlers[event.key](); } });
+document.addEventListener("keydown", (event) => {
+  elements.shortcutTest.textContent = `程式收到按鍵：${event.key}`;
+  const handlers = { [settings.hotkeys.callNext]: callNext, [settings.hotkeys.callReturn]: callReturn, [settings.hotkeys.recall]: recall, [settings.hotkeys.noShow]: noShow, F6: () => desktop?.openWaitingDisplay() };
+  if (handlers[event.key]) { event.preventDefault(); handlers[event.key](); }
+});
 elements.openDisplayButton.addEventListener("click", () => { if (!desktop) return setMessage("候診大螢幕僅能從 Windows 桌面程式開啟。"); void desktop.openWaitingDisplay(); });
 elements.startSessionButton.addEventListener("click", startSession); elements.endSessionButton.addEventListener("click", () => void endSession()); elements.undoButton.addEventListener("click", undoLast);
 elements.testVoiceButton.addEventListener("click", async () => { if (!desktop) return setMessage("語音測試僅能從 Windows 桌面程式執行。"); setMessage(await desktop.testVoice() ? "已送出候診螢幕語音測試。" : "請先開啟候診大螢幕，再測試語音。"); });
-if (desktop) { desktop.loadState().then((saved) => { state = normalize(saved); render(); }); desktop.onStateUpdate((saved) => { state = normalize(saved); render(); }); }
+elements.settingsForm.addEventListener("submit", (event) => { event.preventDefault(); settings.hotkeys = { callNext: elements.callNextKey.value, callReturn: elements.callReturnKey.value, recall: elements.recallKey.value, noShow: elements.noShowKey.value }; saveSettings(); setMessage("快捷鍵設定已儲存；請在診所系統旁實測無衝突後再啟用。 "); });
+elements.exportAuditButton.addEventListener("click", async () => { if (!desktop) return setMessage("CSV 匯出僅能從 Windows 桌面程式執行。"); const path = await desktop.exportAudit(state); setMessage(path ? "匿名操作紀錄已匯出。" : "已取消匯出。 "); });
+[[elements.displayCheck, "display"], [elements.voiceCheck, "voice"], [elements.keypadCheck, "keypad"]].forEach(([field, name]) => field.addEventListener("change", () => { settings.deviceChecks[name] = field.checked; saveSettings(); }));
+if (desktop) {
+  desktop.loadState().then((saved) => { state = normalize(saved); render(); }); desktop.onStateUpdate((saved) => { state = normalize(saved); render(); });
+  desktop.loadSettings().then((saved) => { settings = saved; renderSettings(); });
+} else { settings = JSON.parse(localStorage.getItem("ye-neuro-queue-settings") || JSON.stringify(settings)); renderSettings(); }
 render();
