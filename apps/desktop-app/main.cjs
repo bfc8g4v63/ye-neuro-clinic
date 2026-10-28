@@ -6,7 +6,8 @@ let controllerWindow;
 let displayWindow;
 
 const allowedStatuses = new Set(["waiting", "called", "noShow", "returnReady", "done"]);
-const defaultState = { items: [], current: null, lastCalledAt: null, lastEvent: null };
+const allowedActions = new Set(["checkin", "call", "recall", "no_show", "return_ready", "undo", "session_started", "session_closed"]);
+const defaultState = { session: null, items: [], current: null, lastCalledAt: null, lastEvent: null, events: [] };
 
 function pagesPath() {
   return path.join(__dirname, "..", "local-controller");
@@ -16,17 +17,52 @@ function statePath() {
   return path.join(app.getPath("userData"), "queue-state.json");
 }
 
+function snapshotPath() {
+  return path.join(app.getPath("userData"), "backups", "queue-latest.json");
+}
+
+function archivePath(session) {
+  const date = session?.dateKey || new Date().toISOString().slice(0, 10);
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  return path.join(app.getPath("userData"), "archives", `queue-${date}-${stamp}.json`);
+}
+
 function sanitizeState(input) {
   const items = Array.isArray(input?.items) ? input.items : [];
   const sanitizedItems = items
     .filter((item) => Number.isInteger(item?.number) && item.number >= 1 && item.number <= 999 && allowedStatuses.has(item.status))
     .map((item) => ({ number: item.number, status: item.status }));
   const current = sanitizedItems.some((item) => item.number === input?.current && item.status === "called") ? input.current : null;
+  const session = input?.session && (input.session.status === "active" || input.session.status === "closed")
+    ? {
+      status: input.session.status,
+      dateKey: typeof input.session.dateKey === "string" ? input.session.dateKey.slice(0, 10) : null,
+      startedAt: typeof input.session.startedAt === "string" ? input.session.startedAt : null,
+      closedAt: typeof input.session.closedAt === "string" ? input.session.closedAt : null,
+    }
+    : null;
+  const events = (Array.isArray(input?.events) ? input.events : []).slice(-250).flatMap((event) => {
+    if (!allowedActions.has(event?.action) || typeof event?.at !== "string") return [];
+    const beforeItems = Array.isArray(event.before?.items)
+      ? event.before.items.filter((item) => Number.isInteger(item?.number) && allowedStatuses.has(item.status)).map((item) => ({ number: item.number, status: item.status }))
+      : undefined;
+    return [{
+      id: typeof event.id === "string" ? event.id.slice(0, 64) : `${event.at}-${event.action}`,
+      at: event.at,
+      action: event.action,
+      actor: event.actor === "reception" ? "reception" : "doctor",
+      number: Number.isInteger(event.number) ? event.number : null,
+      undone: Boolean(event.undone),
+      before: beforeItems ? { items: beforeItems, current: Number.isInteger(event.before.current) ? event.before.current : null, lastCalledAt: event.before.lastCalledAt || null, lastEvent: event.before.lastEvent || null } : undefined,
+    }];
+  });
   return {
+    session,
     items: sanitizedItems,
     current,
     lastCalledAt: typeof input?.lastCalledAt === "string" ? input.lastCalledAt : null,
     lastEvent: input?.lastEvent === "call" || input?.lastEvent === "recall" ? input.lastEvent : null,
+    events,
   };
 }
 
@@ -45,10 +81,25 @@ async function saveState(nextState) {
   const temporary = `${target}.tmp`;
   await fs.writeFile(temporary, JSON.stringify(state, null, 2), "utf8");
   await fs.rename(temporary, target);
+  await fs.mkdir(path.dirname(snapshotPath()), { recursive: true });
+  await fs.writeFile(snapshotPath(), JSON.stringify(state, null, 2), "utf8");
   for (const window of [controllerWindow, displayWindow]) {
     if (window && !window.isDestroyed()) window.webContents.send("queue-state-updated", state);
   }
   return state;
+}
+
+async function archiveAndClose(nextState) {
+  const state = sanitizeState(nextState);
+  if (state.session?.status !== "active") throw new Error("沒有進行中的診次可結束。");
+  const at = new Date().toISOString();
+  state.session = { ...state.session, status: "closed", closedAt: at };
+  state.events.push({ id: `session-closed-${at}`, at, action: "session_closed", actor: "doctor", number: null, undone: false });
+  const archived = sanitizeState(state);
+  const target = archivePath(archived.session);
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  await fs.writeFile(target, JSON.stringify(archived, null, 2), "utf8");
+  return saveState(archived);
 }
 
 function secureOptions() {
@@ -106,7 +157,15 @@ app.whenReady().then(() => {
   Menu.setApplicationMenu(null);
   ipcMain.handle("queue:load-state", loadState);
   ipcMain.handle("queue:save-state", (_event, state) => saveState(state));
+  ipcMain.handle("queue:archive-and-close", (_event, state) => archiveAndClose(state));
   ipcMain.handle("queue:open-display", () => openDisplay());
+  ipcMain.handle("queue:test-voice", () => {
+    if (displayWindow && !displayWindow.isDestroyed()) {
+      displayWindow.webContents.send("queue:test-voice");
+      return true;
+    }
+    return false;
+  });
   createController();
   app.on("activate", () => { if (BrowserWindow.getAllWindows().length === 0) createController(); });
 });

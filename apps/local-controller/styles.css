@@ -28,6 +28,7 @@ h2 { margin-bottom: 0; font-size: 1.25rem; }
 
 .day-status { flex-direction: column; align-items: flex-end; gap: 8px; font-weight: 700; }
 .local-badge { border-radius: 999px; padding: 6px 11px; background: #d9eeee; color: #176462; font-size: .84rem; }
+.session-actions, .tool-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 
 .current-card, .panel { border: 1px solid #d5e5e4; border-radius: 18px; background: #fff; box-shadow: 0 8px 28px rgba(35, 89, 93, .08); }
 .current-card { justify-content: space-between; gap: 24px; padding: 30px 34px; background: linear-gradient(135deg, #174b61, #0c6870); color: #fff; }
@@ -54,6 +55,7 @@ h2 { margin-bottom: 0; font-size: 1.25rem; }
 
 .panel { padding: 22px; }
 .checkin-panel { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 22px; }
+.tools-panel { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 22px; }
 .checkin-form { flex-wrap: wrap; gap: 10px; align-content: center; }
 .checkin-form label { width: 100%; font-weight: 700; }
 .checkin-form input { width: 118px; min-height: 48px; border: 1px solid #9db8ba; border-radius: 10px; padding: 8px 12px; }
@@ -77,7 +79,7 @@ h2 { margin-bottom: 0; font-size: 1.25rem; }
   .day-status { align-items: flex-start; }
   .shortcut-note { border-top: 1px solid rgba(255,255,255,.35); border-left: 0; padding-top: 16px; padding-left: 0; }
   .control-grid, .queues { grid-template-columns: 1fr 1fr; }
-  .checkin-panel { grid-template-columns: 1fr; }
+  .checkin-panel, .tools-panel { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {

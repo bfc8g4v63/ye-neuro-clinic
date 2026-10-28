@@ -17,7 +17,11 @@
         </div>
         <div class="day-status" aria-live="polite">
           <span id="todayLabel">—</span>
-          <span class="local-badge">本機模式</span>
+          <span id="sessionBadge" class="local-badge">尚未開始診次</span>
+          <div class="session-actions">
+            <button id="startSessionButton" class="display-button" type="button">開始今日診次</button>
+            <button id="endSessionButton" class="text-button" type="button">結束並封存</button>
+          </div>
           <button id="openDisplayButton" class="display-button" type="button">開啟候診大螢幕</button>
         </div>
       </header>
@@ -47,6 +51,18 @@
         <button class="action warning" type="button" data-action="no-show">
           <span>F11</span> 目前號碼過號
         </button>
+      </section>
+
+      <section class="panel tools-panel" aria-labelledby="tools-heading">
+        <div>
+          <p class="eyebrow">試營運工具</p>
+          <h2 id="tools-heading">復原與設備自測</h2>
+        </div>
+        <div class="tool-actions">
+          <button id="undoButton" class="secondary" type="button">復原上一步</button>
+          <button id="testVoiceButton" class="display-button" type="button">測試候診螢幕語音</button>
+          <p id="lastAudit" class="subtle">尚無操作紀錄</p>
+        </div>
       </section>
 
       <section class="panel checkin-panel" aria-labelledby="checkin-heading">
@@ -96,7 +112,7 @@
         </article>
       </section>
 
-      <p class="footnote">此原型的資料只留在目前瀏覽器。正式上線前，需改由診所主機保存並同步匿名的公開叫號資訊。</p>
+      <p class="footnote">桌面版僅保存匿名候診狀態與操作紀錄於本機；公開網頁不會讀取本機資料。</p>
     </main>
     <script src="queue-controller.js"></script>
   </body>

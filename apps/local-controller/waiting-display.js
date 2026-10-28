@@ -21,6 +21,15 @@ function announce(state, current) {
   window.speechSynthesis.speak(speech);
 }
 
+function announceTest() {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const speech = new SpeechSynthesisUtterance("葉神經科候診叫號系統，語音測試。");
+  speech.lang = "zh-TW";
+  speech.rate = 0.8;
+  window.speechSynthesis.speak(speech);
+}
+
 function render(nextState, shouldAnnounce = false) {
   const state = nextState || JSON.parse(localStorage.getItem(storageKey) || '{"items":[],"current":null}');
   const current = state.items.find((item) => item.number === state.current && item.status === "called");
@@ -35,6 +44,7 @@ window.addEventListener("storage", render);
 if (desktop) {
   desktop.loadState().then((state) => render(state));
   desktop.onStateUpdate((state) => render(state, true));
+  desktop.onVoiceTest(announceTest);
 } else {
   setInterval(render, 3000);
   render();
